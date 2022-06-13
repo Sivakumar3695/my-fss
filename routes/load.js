@@ -1,5 +1,4 @@
 const { GetObjectCommand } = require('@aws-sdk/client-s3');
-const fs = require('fs');
 const { awsS3Client } = require('../config/s3client');
 
 module.exports = {
@@ -17,6 +16,7 @@ module.exports = {
 
         try{
             const awsResp = await awsS3Client.send(new GetObjectCommand(params))
+            
             console.log('AWS data fetch successful.');
             return h
                     .response(awsResp.Body)
@@ -26,14 +26,14 @@ module.exports = {
         }
         catch(err){
 
+            console.log('Exception in file reading from AWS S3 bucket');
             console.log(err);
-            const respData = {
-                'message': 'Unable to process the request.',
-                'code': 'file_read'
-            }
 
             return h
-                .response(respData)
+                .response({
+                    'message': 'Unable to process the request. Please try again after sometime.',
+                    'code': 'file_read'
+                })
                 .type('application/json')
                 .header('content-type', 'application/json')
                 .code(520)
